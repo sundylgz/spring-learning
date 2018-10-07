@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+
+    <!--可以index|name|type 三选一 、三选二  ； ref|value 二选一-->
+
+
+    <!-- 配置 beans
+     class: bean的全类名，通过反射的方式在IOC容器中创建Bean.所以要求Bean中必须有无参构造器
+     主id:标识容器中的bean. id唯一
+     -->
+    <bean id="helloWorld" class="com.sundy.beans.HelloWorld">
+        <!-- 为属性赋值 -->
+        <property name="user" value="Jerry"></property>
+    </bean>
+
+    <!-- 配置一个 beans -->
+    <bean id="helloWorld2" class="com.sundy.beans.HelloWorld">
+        <!-- 为属性赋值 -->
+        <!-- 通过属性注入: 通过 setter 方法注入属性值 -->
+        <property name="user" value="Tom"></property>
+    </bean>
+
+
+    <!-- 通过构造器注入属性值 -->
+    <bean id="helloWorld3" class="com.sundy.beans.HelloWorld">
+        <!-- 要求: 在 Bean 中必须有对应的构造器.  -->
+        <constructor-arg value="Tom"></constructor-arg>
+    </bean>
+
+
+    <!-- 通过构造器注入属性值 -->
+    <bean id="helloWorld4" class="com.sundy.beans.HelloWorld">
+        <!-- 要求: 在 Bean 中必须有对应的构造器.  -->
+        <constructor-arg name="user" value="helloWorld4"></constructor-arg>
+    </bean>
+
+
+    <!-- 通过构造方法来配置bean 的属性-->
+    <!-- 若一个 beans 有多个构造器, 如何通过构造器来为 beans 的属性赋值 -->
+    <!-- 可以根据 index 和 value 进行更加精确的定位,index和type可以混合使用-->
+    <bean id="car" class="com.sundy.beans.Car">
+        <constructor-arg value="KUGA" index="1"></constructor-arg>
+        <constructor-arg value="ChangAnFord" index="0"></constructor-arg>
+        <constructor-arg value="250000" index="2"></constructor-arg>
+    </bean>
+
+    <!--使用构造器注入属性值可以指定参数的位置和参数的类型!以区分重载的构造器! -->
+    <bean id="car2" class="com.sundy.beans.Car">
+        <constructor-arg value="KUGA" type="java.lang.String"></constructor-arg>
+        <constructor-arg value="ChangAnFord" type="java.lang.String"></constructor-arg>
+        <constructor-arg value="250000" type="int"></constructor-arg>
+    </bean>
+
+
+    <bean id="car3" class="com.sundy.beans.Car">
+        <constructor-arg value="ChangAnMazda"></constructor-arg>
+        <!--如果字面值包含特殊字符可以使用<![CDATA[]]> 包裹起来--><!--属性值也可以使用value 直接点进行配置-->
+        <constructor-arg>
+            <value> <![CDATA[ <ATARZA>]]></value>
+        </constructor-arg>
+        <constructor-arg type="int">
+            <value>180</value>
+        </constructor-arg>
+    </bean>
+
+
+    <bean id="person" class="com.sundy.beans.Person">
+        <property name="name" value="sundy"/>
+        <property name="age" value="18"/>
+        <!--可以使用property 的ref属性建立bean之间的引用关系。-->
+        <property name="car" ref="car"/>
+    </bean>
+
+
+    <bean id="person2" class="com.sundy.beans.Person">
+        <property name="name" value="sundy"/>
+        <property name="age" value="18"/>
+        <!--可以使用property 的ref属性建立bean之间的引用关系。-->
+        <property name="car">
+            <ref bean="car2"/>
+        </property>
+    </bean>
+
+
+    <bean id="person3" class="com.sundy.beans.Person">
+        <property name="name" value="sundy"/>
+        <property name="age" value="18"/>
+        <!--内部bean-->
+        <property name="car">
+            <bean class="com.sundy.beans.Car">
+                <constructor-arg value="KUGA" type="java.lang.String"></constructor-arg>
+                <constructor-arg value="ChangAnFord" type="java.lang.String"></constructor-arg>
+                <constructor-arg value="1800" type="int"></constructor-arg>
+            </bean>
+        </property>
+    </bean>
+
+
+    <bean id="person4" class="com.sundy.beans.Person">
+        <constructor-arg index="0" value="sundy"></constructor-arg>
+        <constructor-arg index="1" value="18"></constructor-arg>
+        <constructor-arg index="2" ref="car3"></constructor-arg>
+    </bean>
+
+
+    <!--测试赋值null-->
+    <bean id="person5" class="com.sundy.beans.Person">
+        <constructor-arg index="0" value="sundy"></constructor-arg>
+        <constructor-arg index="1" value="18"></constructor-arg>
+        <constructor-arg index="2">
+            <null/>
+        </constructor-arg>
+    </bean>
+
+
+    <!--级联属性赋值，就是对原先属性值修改，注意：属性-->
+    <bean id="person6" class="com.sundy.beans.Person">
+        <constructor-arg index="0" value="sundy"></constructor-arg>
+        <constructor-arg index="1" value="18"></constructor-arg>
+        <constructor-arg index="2" ref="car3"/>
+        <!--为级联属性赋值。注意:属性需要先初始化后才可以为级联属性赋值。否则会有异常，和Struts2不同。-->
+        <property name="car.maxSpeed" value="100"></property>
+    </bean>
+
+
+    <bean id="person7" class="com.sundy.beans.collections.Person">
+        <constructor-arg value="sundy"></constructor-arg>
+        <constructor-arg value="18"></constructor-arg>
+        <constructor-arg name="cars">
+            <!--使用list节点为list类型的属性赋值-->
+            <list>
+                <ref bean="car"></ref>
+                <ref bean="car2"></ref>
+                <ref bean="car3"></ref>
+            </list>
+        </constructor-arg>
+    </bean>
+
+
+    <!-- 配置list属性-->
+    <bean id="person8" class="com.sundy.beans.collections.Person">
+        <constructor-arg value="sundy"></constructor-arg>
+        <constructor-arg value="18"></constructor-arg>
+        <constructor-arg name="cars">
+            <!--使用list节点为list类型的属性赋值-->
+            <list>
+                <bean class="com.sundy.beans.Car">
+                    <constructor-arg value="KUGA1" type="java.lang.String"></constructor-arg>
+                    <constructor-arg value="ChangAnFord" type="java.lang.String"></constructor-arg>
+                    <constructor-arg value="1800" type="int"></constructor-arg>
+                </bean>
+
+                <bean class="com.sundy.beans.Car">
+                    <constructor-arg value="KUGA2" type="java.lang.String"></constructor-arg>
+                    <constructor-arg value="ChangAnFord" type="java.lang.String"></constructor-arg>
+                    <constructor-arg value="1800" type="int"></constructor-arg>
+                </bean>
+
+                <bean class="com.sundy.beans.Car">
+                    <constructor-arg value="KUGA3" type="java.lang.String"></constructor-arg>
+                    <constructor-arg value="ChangAnFord" type="java.lang.String"></constructor-arg>
+                    <constructor-arg value="1800" type="int"></constructor-arg>
+                </bean>
+
+            </list>
+        </constructor-arg>
+    </bean>
+
+
+    <!--配置map属性-->
+    <bean id="newPerson" class="com.sundy.beans.collections.NewPerson">
+        <constructor-arg value="sundy"></constructor-arg>
+        <constructor-arg value="18"></constructor-arg>
+        <constructor-arg name="cars">
+            <!--使用map节点为map类型的属性赋值-->
+            <map>
+                <entry key="aa" value-ref="car"></entry>
+                <entry key="bb" value-ref="car2"></entry>
+                <entry key="cc" value-ref="car3"></entry>
+            </map>
+        </constructor-arg>
+    </bean>
+
+
+    <!--配置Properties 属性值-->
+    <bean id="dataSource" class="com.sundy.beans.collections.DataSource">
+        <property name="properties">
+            <!--使用props和prop子节点来为Properties 属性赋值-->
+            <props>
+                <prop key="userName">root</prop>
+                <prop key="password">root</prop>
+                <prop key="driverClass">com.mysql.jdbc.Driver</prop>
+                <prop key="jdbcUrl">jdbc:mysql:///127.0.0.1:3306</prop>
+            </props>
+        </property>
+    </bean>
+
+
+    <!--配置单例的集合bean, 以供多个bean进行引用-->
+
+    <util:list id="cars">
+        <ref bean="car"/>
+        <ref bean="car2"/>
+        <ref bean="car3"/>
+    </util:list>
+
+
+    <bean id="person9" class="com.sundy.beans.collections.Person">
+        <constructor-arg value="sundy"></constructor-arg>
+        <constructor-arg value="18"></constructor-arg>
+        <constructor-arg name="cars" ref="cars">
+        </constructor-arg>
+    </bean>
+
+
+    <!-- 通过p命名空间为bean的属性赋值，需要先导入p命名空间。相对于传统的配置方式更加的简洁.-->
+    <bean id="person10" class="com.sundy.beans.collections.Person" p:age="30" p:name="Queen" p:cars-ref="cars"></bean>
+
+
+</beans>
